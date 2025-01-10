@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🎮 Advanced Tic-Tac-Toe ✨
+Welcome to the Advanced Tic-Tac-Toe game, a twist on the classic! 🕹️
 
-## Getting Started
+🔍 Game Rules:
+Players: 2 (Player X and Player O) 🤺
+Gameplay: Players take turns marking a spot on the 3x3 grid.
+Special Rule: After the 4th move, the first move made by either player is erased. 🎲
+Winning: The first player to get 3 marks in a row (horizontally, vertically, or diagonally) wins! 🏆
 
-First, run the development server:
+⚙️ How it Works:
+The game keeps track of each player's moves in a circular queue (a fancy way of storing moves! 😉).
+Once the 4th move is made, the first move gets removed automatically. 🧹
+The game checks for a winner after every move.
+If there is a winner, the game announces the winner and resets. 🔄
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+💻 Features:
+Stylish 3x3 grid where players place their X or O. ✨
+Interactive UI with smooth animations. 🖱️
+Visual feedback on moves made by each player (opacity effect). 👀
+The game resets after a win or a draw, ready for another round! 🔁
