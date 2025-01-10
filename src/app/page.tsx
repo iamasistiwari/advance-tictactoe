@@ -3,6 +3,7 @@ import Block from "@/components/Block";
 import { CircularQueue } from "@/components/Queue";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+
 type CellValue = "O" | "X" | null;
 
 export default function Page() {
@@ -31,12 +32,14 @@ export default function Page() {
 
   const resetGame = () => {
     setState(Array(9).fill(null));
-    setcurrentMove("X");
+    setcurrentMove('O');
     settotalMoves(0);
     xCircularQueue.current = new CircularQueue<number>();
     oCircularQueue.current = new CircularQueue<number>();
     xlastDim.current = null;
     olastDim.current = null;
+    setClickedIndex(null)
+    setScalingIndex(null)
   };
 
   const winnerCheck = (): boolean => {
@@ -124,7 +127,17 @@ export default function Page() {
       <div className="absolute top-10 flex gap-x-10 border py-2 px-8 rounded-xl">
         <div>Total Played Moves - {totalMoves}</div>
       </div>
-      <div className="flex flex-col space-y-3 lg:space-y-5">
+      <div className="absolute top-28 flex gap-x-10  py-2 px-8 rounded-xl">
+        <div>
+          Current Move:{" "}
+          {
+            <span className={`text-2xl lg:text-3xl ml-4 font-extrabold ${currentMove === 'X' ? 'text-red-400': 'text-green-400'}`}>
+              {currentMove}
+            </span>
+          }
+        </div>
+      </div>
+      <div className="flex flex-col space-y-3 lg:space-y-5 mt-10 lg:mt-16">
         <div className="flex flex-row space-x-5 lg:space-x-8 justify-center items-center ">
           {[0, 1, 2].map((index) => (
             <Block
