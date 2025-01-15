@@ -1,4 +1,6 @@
-link: https://tictactoe.ashishtiwari.net/
+link: https://tictactoe.ashishtiwari.net
+
+
 🎮 Advanced Tic-Tac-Toe ✨
 
 Welcome to the Advanced Tic-Tac-Toe game, a twist on the classic! 🕹️
