@@ -3,17 +3,17 @@ import React from 'react';
 
 interface PageProps {
   params: Promise<{
-    roomid: string;
+    roomId: string;
   }>;
 }
 export default async function Page({ params }: PageProps) {
-  const { roomid } = await params;
+  const { roomId } = await params;
   return (
     <div>
       <span className="pl-2 text-xs font-semibold opacity-40">
-        ROOM ID - {roomid}
+        ROOM ID - {roomId}
       </span>
-      <RoomGame roomId={roomid}></RoomGame>
+      <RoomGame roomId={roomId}></RoomGame>
     </div>
   );
 }
