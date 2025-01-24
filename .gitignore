@@ -1,5 +1,5 @@
+.vscode/
 
-# dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,10 +10,10 @@
 !.yarn/versions
 .vscode/
 
-# testing
+
 /coverage
 
-# next.js
+
 /.next/
 /out/
 
