@@ -33,9 +33,7 @@ export class CircularQueue<T> {
     getQueue(): (T | null)[] {
         return [...this.arr];
     }
-    getIsFull(): boolean {
-        return this.size === 3;
-    }
+    
     getFirstElement() : (T | null) {
         return this.arr[0]
     }

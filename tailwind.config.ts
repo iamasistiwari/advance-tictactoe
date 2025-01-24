@@ -8,11 +8,14 @@ export default {
   ],
   theme: {
     extend: {
+      scrollBehavior: {
+        smooth: 'smooth',
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
 } satisfies Config;
