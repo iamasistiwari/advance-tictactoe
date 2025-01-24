@@ -49,9 +49,7 @@ export function SocketProvider({ children }: SocketProviderProps): JSX.Element {
     const initialize = async () => {
       const hashedString = await fetchHash();
       console.log('here is token', hashedString);
-      const ws = new WebSocket(
-        `ws://vw80sg8gs0wgo84g0cos88ss.173.208.138.103.sslip.io/?token=${hashedString}`
-      );
+      const ws = new WebSocket(`wss://tictactoews.ashishtiwari.net?token=${hashedString}`);
       ws.onopen = () => {
         setSocket(ws);
         setLoading(false);
