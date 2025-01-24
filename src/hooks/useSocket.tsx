@@ -48,8 +48,9 @@ export function SocketProvider({ children }: SocketProviderProps): JSX.Element {
   useEffect(() => {
     const initialize = async () => {
       const hashedString = await fetchHash();
-      console.log('here is token', hashedString);
-      const ws = new WebSocket(`wss://tictactoews.ashishtiwari.net?token=${hashedString}`);
+      const ws = new WebSocket(
+        `wss://tictactoews.ashishtiwari.net?token=${hashedString}`
+      );
       ws.onopen = () => {
         setSocket(ws);
         setLoading(false);
