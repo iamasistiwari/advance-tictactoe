@@ -1,28 +1,30 @@
 'use client';
-
-import { useSocket } from '@/hooks/useSocket';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Game from './Game';
-
+import { useSocket } from '@/hooks/useSocket';
+import { Loader2 } from 'lucide-react';
 export default function RoomGame({ roomId }: { roomId: string }) {
-  const { socket, loading } = useSocket();
+  const { socket, isRoomFull, Type } = useSocket();
 
-  useEffect(() => {
-    if (socket && !loading) {
-      socket.send(
-        JSON.stringify({
-          type: 'join_room',
-          roomId,
-        })
-      );
-    }
-  }, [socket, loading]);
-
-  if (loading || !socket) {
-    return <div>Connecting to server</div>;
+  if (!socket) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Connecting to WebSocket...
+      </div>
+    );
   }
-  return <div>DONE CONNECTED
-    <Game socket={socket} roomId={roomId}/>
-  </div>;
-}
 
+  if (!isRoomFull) {
+    return (
+      <div className="flex h-screen items-center justify-center text-lg font-semibold lg:text-xl">
+        <Loader2 className="mr-4 animate-spin" />
+        Waiting for more players...
+      </div>
+    );
+  }
+  return (
+    <div>
+      <Game socket={socket} roomId={roomId} moveType={Type} />
+    </div>
+  );
+}

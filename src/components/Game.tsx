@@ -1,237 +1,169 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { CircularQueue } from './Queue';
 import Block from './Block';
-
+import { Loader2 } from 'lucide-react';
 type CellValue = 'O' | 'X' | null;
 
-interface SendData {
-  type: 'join_room' | 'leave_room' | 'played';
+export default function Game({
+  socket,
+  roomId,
+  moveType,
+}: {
+  socket: WebSocket;
   roomId: string;
-  move?: string;
-}
-interface ReceivedData {
-  type: 'game_start' | 'error' | 'role' | 'move';
-  role?: 'X' | 'O'
-  move?: number;
-}
-
-export default function Game({socket, roomId}: {socket: WebSocket, roomId: string}) {
-
-  const [state, setState] = useState<CellValue[]>(Array(9).fill(null));
-  const [isFull, setIsFull] = useState<boolean>(false)
-  const [yourMove, setyourMove] = useState<'X' | 'O'>();
+  moveType: 'X' | 'O';
+}) {
+  const [gameState, setGameState] = useState<CellValue[]>(Array(9).fill(null));
   const [totalMoves, settotalMoves] = useState<number>(0);
 
   const [, setClickedIndex] = useState<number | null>(null);
   const [scalingIndex, setScalingIndex] = useState<number | null>(null);
+  const [gameOver, setGameOver] = useState<boolean>(false);
+  const playerOneLastDim = useRef<number | null>(null);
+  const playerTwoLastDim = useRef<number | null>(null);
 
-  const xCircularQueue = useRef(new CircularQueue<number>());
-  const oCircularQueue = useRef(new CircularQueue<number>());
-
-  const xlastDim = useRef<number | null>(null);
-  const olastDim = useRef<number | null>(null);
-
-  const xisFull = xCircularQueue.current.isFull();
-  if (xisFull) {
-    xlastDim.current = xCircularQueue.current.getFirstElement();
-  }
-
-  const oisFull = oCircularQueue.current.isFull();
-  if (oisFull) {
-    olastDim.current = oCircularQueue.current.getFirstElement();
-  }
-
-  const resetGame = () => {
-    setState(Array(9).fill(null));
-    setyourMove(undefined);
-    settotalMoves(0);
-    xCircularQueue.current = new CircularQueue<number>();
-    oCircularQueue.current = new CircularQueue<number>();
-    xlastDim.current = null;
-    olastDim.current = null;
-    setClickedIndex(null);
-    setScalingIndex(null);
-  };
-
-  const winnerCheck = (): boolean => {
-    const winingCombinations = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-    const xtarget = xCircularQueue.current.getQueue().sort();
-    const otarget = oCircularQueue.current.getQueue().sort();
-
-    const xIsWinner = winingCombinations.some(
-      (combination) =>
-        combination.length === xtarget.length &&
-        combination.every((value, index) => value === xtarget[index])
-    );
-    const oIsWinner = winingCombinations.some(
-      (combination) =>
-        combination.length === otarget.length &&
-        combination.every((value, index) => value === otarget[index])
-    );
-    if (xIsWinner) {
-      return true;
+  const [isYourTurn, setIsYourTurn] = useState<boolean>();
+  useEffect(() => {
+    if (moveType === 'X') {
+      setIsYourTurn(true);
+    } else {
+      setIsYourTurn(false);
     }
-    if (oIsWinner) {
-      return true;
-    }
-    return false;
-  };
+  }, [gameOver]);
 
   useEffect(() => {
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data) as ReceivedData;
-      if(data.type === 'role'){
-        setyourMove(data.role)
+      if (
+        data.type === 'state' &&
+        data.state !== undefined &&
+        data.totalMoves !== undefined &&
+        data.playerOneLastEle !== undefined &&
+        data.playerTwoLastEle !== undefined
+      ) {
+        const newState = data.state as unknown as CellValue[];
+        playerOneLastDim.current = data.playerOneLastEle;
+        playerTwoLastDim.current = data.playerTwoLastEle;
+        if (moveType === data.currentMove) {
+          setIsYourTurn(true);
+        } else {
+          setIsYourTurn(false);
+        }
+        setGameState(newState);
+        settotalMoves(data.totalMoves);
       }
-      if(data.type === 'game_start'){
-        setIsFull(true)
+      if (data.type === 'error' && data.message !== undefined) {
+        toast.error(data.message);
       }
-      if(data.type === 'move'){
-        if(data.move){
-          onClickAction(data.move)
+
+      if (data.type === 'gameEnd' && data.message !== undefined) {
+        if (data.message === 'Congratulations You won opponent exited') {
+          toast.success(data.message);
+          setTimeout(() => {
+            window.location.assign('/dashboard');
+          }, 2000);
+          return;
+        }
+        if (data.message === 'Congratulations') {
+          toast.success(data.message);
+          setTimeout(() => {
+            resetGame();
+          }, 400);
+        } else {
+          toast.error(data.message);
+          setTimeout(() => {
+            resetGame();
+          }, 400);
         }
       }
     };
-
   }, [socket]);
 
-  const sendMove = (move: number) => {
-    if (onClickAction(move)){
-      socket.send(
-        JSON.stringify({
-          type: 'played',
-          roomId,
-          move,
-        })
-      );
-    }
-  }
+  const resetGame = () => {
+    setGameState(Array(9).fill(null));
+    playerOneLastDim.current = null;
+    playerTwoLastDim.current = null;
+    setClickedIndex(null);
+    setScalingIndex(null);
+    settotalMoves(0);
+    setGameOver((value) => !value);
+  };
 
-  useEffect(() => {
-    if (totalMoves > 4 && winnerCheck() && yourMove) {
-      setTimeout(() => {
-        toast.success(`${yourMove.toUpperCase()} WINS`);
-        resetGame();
-      }, 200);
-    }
-  }, [state]);
-
-  const onClickAction = (index: number): boolean => {
-    if (state[index] !== null) {
-      toast.error('You cannot overwrite the existing move');
-      return false;
-    }
-    if (yourMove === 'X') {
-      xCircularQueue.current.add(index);
-    } 
-    else {
-      oCircularQueue.current.add(index);
-    }
-    setState((prevState) => {
-      const newState = [...prevState];
-      const xarr = xCircularQueue.current.getQueue();
-      const oarr = oCircularQueue.current.getQueue();
-
-      newState.fill(null);
-
-      xarr.forEach((move) => {
-        if (move !== null) newState[move] = 'X';
-      });
-      oarr.forEach((move) => {
-        if (move !== null) newState[move] = 'O';
-      });
-      return newState;
-    });
+  const onClickAction = (index: number) => {
+    socket.send(JSON.stringify({ type: 'played', roomId, move: index }));
     setClickedIndex(index);
     setScalingIndex(index);
-
     setTimeout(() => {
       setScalingIndex(null);
     }, 300);
-
-    settotalMoves((moves) => moves + 1);
-    return true
   };
 
   return (
-    <div className="h-screen justify-center items-center flex flex-col">
-      <div className="absolute top-10 flex gap-x-10 border py-2 px-8 rounded-xl">
-        <div>Total Played Moves - {totalMoves} <span>ISFULL: {" "+isFull}</span></div>
-      </div>
-      <div className="absolute top-28 flex gap-x-10  py-2 px-8 rounded-xl">
-        <div>
-          Current Move:{' '}
-          {
-            <span
-              className={`text-2xl lg:text-3xl ml-4 font-extrabold ${yourMove === 'X' ? 'text-red-400' : 'text-green-400'}`}
-            >
-              {yourMove}
+    <div className="flex w-screen flex-col">
+      <div className="mt-10 flex h-full flex-col items-center justify-center 2xl:mt-20">
+        <div className="flex rounded-xl border border-neutral-800 px-8 py-2">
+          <span className="opacity-90">Total Played Moves -</span>
+          <span className="pl-2 text-base font-semibold">{totalMoves}</span>
+        </div>
+        <div className="mt-12 flex rounded-xl px-8">
+          {isYourTurn ? (
+            <span className="font-semibold text-green-400">
+              Your Turn Rock It!
             </span>
-          }
+          ) : (
+            <span className="flex font-semibold text-red-300">
+              <Loader2 className="mr-2 animate-spin" />
+              Wait for opponent move
+            </span>
+          )}
         </div>
-      </div>
-      <div className="flex flex-col space-y-3 lg:space-y-5 mt-10 lg:mt-16">
-        <div className="flex flex-row space-x-5 lg:space-x-8 justify-center items-center ">
-          {[0, 1, 2].map((index) => (
-            <Block
-              key={index}
-              value={state[index]}
-              onClick={() => sendMove(index)}
-              style={{
-                transform: scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
-                transition: 'transform 0.3s ease-in-out',
-              }}
-              className={`border border-gray-200 h-24 w-24 lg:h-28 lg:w-28 rounded-xl cursor-pointer 
-                ${olastDim.current === index ? 'opacity-20' : ''}
-                ${xlastDim.current === index ? 'opacity-20' : ''}
-              `}
-            />
-          ))}
-        </div>
-        <div className="flex flex-row space-x-5 lg:space-x-8 justify-center items-center">
-          {[3, 4, 5].map((index) => (
-            <Block
-              key={index}
-              value={state[index]}
-              onClick={() => sendMove(index)}
-              style={{
-                transform: scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
-                transition: 'transform 0.3s ease-in-out',
-              }}
-              className={`border border-gray-200 h-24 w-24 lg:h-28 lg:w-28 rounded-xl cursor-pointer
-                ${olastDim.current === index ? 'opacity-20' : ''}
-                ${xlastDim.current === index ? 'opacity-20' : ''}
-              `}
-            />
-          ))}
-        </div>
-        <div className="flex flex-row space-x-5 lg:space-x-8 justify-center items-center">
-          {[6, 7, 8].map((index) => (
-            <Block
-              key={index}
-              value={state[index]}
-              onClick={() => sendMove(index)}
-              style={{
-                transform: scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
-                transition: 'transform 0.3s ease-in-out',
-              }}
-              className={`border border-gray-200 h-24 w-24 lg:h-28 lg:w-28 rounded-xl cursor-pointer  
-                ${olastDim.current === index ? 'opacity-20' : ''}
-                ${xlastDim.current === index ? 'opacity-20' : ''}
-              `}
-            />
-          ))}
+        <div className="flex flex-col space-y-3 lg:mt-8 lg:space-y-5">
+          <div className="flex flex-row items-center justify-center space-x-5 lg:space-x-8">
+            {[0, 1, 2].map((index) => (
+              <Block
+                key={index}
+                value={gameState[index]}
+                onClick={() => onClickAction(index)}
+                style={{
+                  transform:
+                    scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
+                  transition: 'transform 0.3s ease-in-out',
+                }}
+                className={`h-24 w-24 cursor-pointer rounded-xl border border-gray-200 lg:h-28 lg:w-28 ${playerOneLastDim.current === index ? 'opacity-20' : ''} ${playerTwoLastDim.current === index ? 'opacity-20' : ''} `}
+              />
+            ))}
+          </div>
+          <div className="flex flex-row items-center justify-center space-x-5 lg:space-x-8">
+            {[3, 4, 5].map((index) => (
+              <Block
+                key={index}
+                value={gameState[index]}
+                onClick={() => onClickAction(index)}
+                style={{
+                  transform:
+                    scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
+                  transition: 'transform 0.3s ease-in-out',
+                }}
+                className={`h-24 w-24 cursor-pointer rounded-xl border border-gray-200 lg:h-28 lg:w-28 ${playerOneLastDim.current === index ? 'opacity-20' : ''} ${playerTwoLastDim.current === index ? 'opacity-20' : ''} `}
+              />
+            ))}
+          </div>
+          <div className="flex flex-row items-center justify-center space-x-5 lg:space-x-8">
+            {[6, 7, 8].map((index) => (
+              <Block
+                key={index}
+                value={gameState[index]}
+                onClick={() => onClickAction(index)}
+                style={{
+                  transform:
+                    scalingIndex === index ? 'scale(0.85)' : 'scale(1)',
+                  transition: 'transform 0.3s ease-in-out',
+                }}
+                className={`h-24 w-24 cursor-pointer rounded-xl border border-gray-200 lg:h-28 lg:w-28 ${playerOneLastDim.current === index ? 'opacity-20' : ''} ${playerTwoLastDim.current === index ? 'opacity-20' : ''}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
