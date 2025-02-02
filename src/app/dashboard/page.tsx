@@ -22,18 +22,31 @@ export default function Page() {
     if (roomId === '') {
       toast.error("Room-ID can't be empty");
       joinRoomRef.current?.focus();
-      setIsJoinBoolean(false);
+      new Promise(() => {
+        setTimeout(() => {
+          setIsJoinBoolean(false);
+        }, 800);
+      });
+      return;
       return;
     }
     if (roomId.length <= 3) {
       toast.error("Room-ID can't be less than 4-digits");
       joinRoomRef.current?.focus();
-      setIsJoinBoolean(false);
+      new Promise(() => {
+        setTimeout(() => {
+          setIsJoinBoolean(false);
+        }, 800)
+      })
       return;
     }
     if (socket && !loading) {
       joinRoom(roomId);
-      setIsJoinBoolean(false);
+      new Promise(() => {
+        setTimeout(() => {
+          setIsJoinBoolean(false);
+        }, 800);
+      });
     }
   };
 

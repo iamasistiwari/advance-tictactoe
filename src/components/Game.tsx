@@ -118,7 +118,7 @@ export default function Game({
             </span>
           )}
         </div>
-        <div className="flex flex-col space-y-3 lg:mt-8 lg:space-y-5">
+        <div className="flex flex-col mt-10 space-y-3 lg:mt-8 lg:space-y-5">
           <div className="flex flex-row items-center justify-center space-x-5 lg:space-x-8">
             {[0, 1, 2].map((index) => (
               <Block

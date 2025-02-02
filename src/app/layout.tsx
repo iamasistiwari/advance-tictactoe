@@ -27,10 +27,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} scrollbar-w-2 scrollbar-track-blue-lighter scrollbar-thumb-blue scrollbar-thumb-rounded antialiased`}>
-        <Provider>
-          {children}
-        </Provider>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} scrollbar-w-2 scrollbar-track-blue-lighter scrollbar-thumb-blue scrollbar-thumb-rounded bg-[#0d1116] antialiased`}
+      >
+        <Provider>{children}</Provider>
       </body>
     </html>
   );

@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unescaped-entities */
-
 import Counter from '@/components/Counting';
 import { Users, Gamepad2, Zap, Rss } from 'lucide-react';
 import Image from 'next/image';
@@ -13,7 +12,7 @@ export default async function Home() {
       <div className="container mx-auto px-4 pb-32 pt-12 lg:pt-20">
         <div className="flex flex-col items-center space-y-8 text-center">
           <div className="relative">
-            <h1 className="bg-gradient-to-r from-indigo-500 to-teal-400 bg-clip-text text-[52px] font-bold text-transparent lg:text-6xl">
+            <h1 className="bg-gradient-to-r from-indigo-500 to-teal-400 bg-clip-text text-[52px] font-bold text-transparent shadow-lg lg:text-6xl">
               Real-time Tic-Tac-Toe
             </h1>
           </div>
@@ -25,13 +24,13 @@ export default async function Home() {
           <div className="flex gap-4 pt-4">
             <Link
               href={`/dashboard`}
-              className="rounded-md bg-gradient-to-r from-indigo-700 to-teal-700 px-8 py-1.5 text-lg lg:px-8"
+              className="rounded-md bg-gradient-to-r from-indigo-700 to-teal-700 px-8 py-1.5 text-lg shadow-sm lg:px-8"
             >
               Play Now
             </Link>
             <Link
               href="#info"
-              className="rounded-md border border-neutral-500 px-6 py-1.5 text-lg hover:cursor-pointer"
+              className="rounded-md border border-neutral-500 px-6 py-1.5 text-lg shadow-sm hover:cursor-pointer"
             >
               Learn Rules
             </Link>
@@ -86,7 +85,7 @@ export default async function Home() {
         <div className="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
 
         <div className="container mx-auto px-4">
-          <h2 className="mb-8 text-center text-3xl font-bold lg:mb-16 lg:text-4xl">
+          <h2 className="mb-8 text-center text-3xl font-bold shadow-sm lg:mb-16 lg:text-4xl">
             Technologies Used
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
@@ -140,7 +139,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="relative flex min-h-[420px] min-w-[330px] rounded-md border border-neutral-900 lg:min-h-[450px] lg:min-w-[420px]">
+          <div className="relative flex min-h-[420px] min-w-[330px] rounded-md border border-neutral-800 shadow-2xl lg:min-h-[450px] lg:min-w-[420px]">
             <div className="rounded-xl p-8 shadow-2xl">
               <div className="grid h-full grid-cols-3 gap-4">
                 <Image fill src={`/game.png`} alt="image" />
