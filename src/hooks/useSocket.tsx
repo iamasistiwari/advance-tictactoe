@@ -26,10 +26,14 @@ interface SocketProviderProps {
   children: ReactNode;
 }
 
-const formatter = new Intl.DateTimeFormat('en-IN', {
+const formatter = new Intl.DateTimeFormat('en-US', {
   timeZone: 'Asia/Kolkata',
-  timeStyle: 'short',
-  dateStyle: 'short',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  hour12: true,
 });
 
 const fetchHash = async () => {
@@ -48,6 +52,7 @@ export function SocketProvider({ children }: SocketProviderProps): JSX.Element {
   useEffect(() => {
     const initialize = async () => {
       const hashedString = await fetchHash();
+      console.log("HASHED STING", hashedString)
       const ws = new WebSocket(
         `wss://tictactoews.ashishtiwari.net?token=${hashedString}`
       );
